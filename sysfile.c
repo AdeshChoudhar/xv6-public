@@ -451,5 +451,9 @@ sys_count(void) {
     return -1;
   }
   (*p)->fork = cnt_fork;
+  count_proc_state();
+  (*p)->runnable = cnt_runnable;
+  (*p)->sleeping = cnt_sleeping;
+  (*p)->zombie = cnt_zombie;
   return 0;
 }

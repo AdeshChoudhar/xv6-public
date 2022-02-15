@@ -21,6 +21,9 @@ extern void trapret(void);
 static void wakeup1(void *chan);
 
 uint cnt_fork;
+uint cnt_runnable;
+uint cnt_sleeping;
+uint cnt_zombie;
 
 void
 pinit(void)
@@ -533,5 +536,19 @@ procdump(void)
         cprintf(" %p", pc[i]);
     }
     cprintf("\n");
+  }
+}
+
+void
+count_proc_state(void) {
+  cnt_runnable = 0, cnt_sleeping = 0, cnt_zombie = 0;
+  for (struct proc *p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+    if (p->state == RUNNABLE) {
+      cnt_runnable += 1;
+    } else if (p->state == SLEEPING) {
+      cnt_sleeping += 1;
+    } else if (p->state == ZOMBIE) {
+      cnt_zombie += 1;
+    }
   }
 }

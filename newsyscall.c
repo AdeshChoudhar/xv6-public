@@ -15,5 +15,8 @@ int main(int argc, char *argv[]) {
     exit();
   }
   printf(1, "Fork: %d\n", p->fork);
+  printf(1, "Runnable: %d\n", p->runnable);
+  printf(1, "Sleeping: %d\n", p->sleeping);
+  printf(1, "Zombie: %d\n", p->zombie);
   exit();
 }
