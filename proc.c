@@ -24,6 +24,7 @@ uint cnt_fork;
 uint cnt_runnable;
 uint cnt_sleeping;
 uint cnt_zombie;
+uint cnt_scheduling;
 
 void
 pinit(void)
@@ -371,6 +372,7 @@ scheduler(void)
 void
 sched(void)
 {
+  cnt_scheduling += 1;
   int intena;
   struct proc *p = myproc();
 

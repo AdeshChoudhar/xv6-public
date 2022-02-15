@@ -18,5 +18,6 @@ int main(int argc, char *argv[]) {
   printf(1, "Runnable: %d\n", p->runnable);
   printf(1, "Sleeping: %d\n", p->sleeping);
   printf(1, "Zombie: %d\n", p->zombie);
+  printf(1, "Scheduling: %d\n", p->scheduling);
   exit();
 }

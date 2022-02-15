@@ -455,5 +455,6 @@ sys_count(void) {
   (*p)->runnable = cnt_runnable;
   (*p)->sleeping = cnt_sleeping;
   (*p)->zombie = cnt_zombie;
+  (*p)->scheduling = cnt_scheduling;
   return 0;
 }
