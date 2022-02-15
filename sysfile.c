@@ -446,11 +446,10 @@ sys_pipe(void)
 
 int
 sys_count(void) {
-  struct cnt *c;
-  if (argptr(1, (void *)&c, sizeof(*c)) < 0) {
-    cprintf("Oops!\n");
+  struct cnt **p;
+  if (argptr(0, (void *)&p, sizeof(p)) < 0) {
     return -1;
   }
-  cprintf("Yeah!\n");
+  (*p)->fork = cnt_fork;
   return 0;
 }

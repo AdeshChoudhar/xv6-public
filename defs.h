@@ -189,3 +189,12 @@ void            clearpteu(pde_t *pgdir, char *uva);
 
 // number of elements in fixed-size array
 #define NELEM(x) (sizeof(x)/sizeof((x)[0]))
+
+// cnt.c
+extern uint cnt_fork;
+extern uint cnt_runnable;
+extern uint cnt_sleeping;
+extern uint cnt_zombie;
+extern uint cnt_scheduling;
+extern uint cnt_keyboard_interrupts;
+extern uint cnt_total_traps;

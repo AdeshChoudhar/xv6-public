@@ -20,6 +20,8 @@ extern void trapret(void);
 
 static void wakeup1(void *chan);
 
+uint cnt_fork;
+
 void
 pinit(void)
 {
@@ -180,6 +182,7 @@ growproc(int n)
 int
 fork(void)
 {
+  cnt_fork += 1;
   int i, pid;
   struct proc *np;
   struct proc *curproc = myproc();
