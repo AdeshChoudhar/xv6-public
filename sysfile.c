@@ -15,6 +15,7 @@
 #include "sleeplock.h"
 #include "file.h"
 #include "fcntl.h"
+#include "cnt.h"
 
 // Fetch the nth word-sized system call argument as a file descriptor
 // and return both the descriptor and the corresponding struct file.
@@ -440,5 +441,16 @@ sys_pipe(void)
   }
   fd[0] = fd0;
   fd[1] = fd1;
+  return 0;
+}
+
+int
+sys_count(void) {
+  struct cnt *c;
+  if (argptr(1, (void *)&c, sizeof(*c)) < 0) {
+    cprintf("Oops!\n");
+    return -1;
+  }
+  cprintf("Yeah!\n");
   return 0;
 }
