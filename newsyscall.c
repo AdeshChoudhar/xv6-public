@@ -19,5 +19,7 @@ int main(int argc, char *argv[]) {
   printf(1, "Sleeping: %d\n", p->sleeping);
   printf(1, "Zombie: %d\n", p->zombie);
   printf(1, "Scheduling: %d\n", p->scheduling);
+  printf(1, "Keyboard interrupts: %d\n", p->keyboard_interrupts);
+  printf(1, "Total traps: %d\n", p->total_traps);
   exit();
 }

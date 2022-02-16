@@ -4,6 +4,6 @@ struct cnt {
     uint sleeping;
     uint zombie;
     uint scheduling;
-    uint keyboard_interuppts;
+    uint keyboard_interrupts;
     uint total_traps;
 };

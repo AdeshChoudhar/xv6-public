@@ -456,5 +456,7 @@ sys_count(void) {
   (*p)->sleeping = cnt_sleeping;
   (*p)->zombie = cnt_zombie;
   (*p)->scheduling = cnt_scheduling;
+  (*p)->keyboard_interrupts = cnt_keyboard_interrupts;
+  (*p)->total_traps = cnt_total_traps;
   return 0;
 }
