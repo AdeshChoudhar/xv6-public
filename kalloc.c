@@ -9,18 +9,24 @@
 #include "mmu.h"
 #include "spinlock.h"
 
+#define PGMAX (uint)(PHYSTOP / PGSIZE)
+#define PGIND(p) (uint)((V2P(p) / PGSIZE) - 1)
+#define FALSE 0
+#define TRUE 1
+
 void freerange(void *vstart, void *vend);
 extern char end[]; // first address after kernel loaded from ELF file
                    // defined by the kernel linker script in kernel.ld
 
 struct run {
-  struct run *next;
+  char flag;
+  char *arr;
 };
 
 struct {
   struct spinlock lock;
   int use_lock;
-  struct run *freelist;
+  struct run list[PGMAX];
 } kmem;
 
 // Initialization happens in two phases.
@@ -46,10 +52,13 @@ kinit2(void *vstart, void *vend)
 void
 freerange(void *vstart, void *vend)
 {
+  int i = 0;
   char *p;
   p = (char*)PGROUNDUP((uint)vstart);
-  for(; p + PGSIZE <= (char*)vend; p += PGSIZE)
+  for(; p + PGSIZE <= (char*)vend; p += PGSIZE, i++) {
+    kmem.list[i].arr = p;
     kfree(p);
+  }
 }
 //PAGEBREAK: 21
 // Free the page of physical memory pointed at by v,
@@ -59,8 +68,6 @@ freerange(void *vstart, void *vend)
 void
 kfree(char *v)
 {
-  struct run *r;
-
   if((uint)v % PGSIZE || v < end || V2P(v) >= PHYSTOP)
     panic("kfree");
 
@@ -69,9 +76,7 @@ kfree(char *v)
 
   if(kmem.use_lock)
     acquire(&kmem.lock);
-  r = (struct run*)v;
-  r->next = kmem.freelist;
-  kmem.freelist = r;
+  kmem.list[PGIND(v)].flag = TRUE;
   if(kmem.use_lock)
     release(&kmem.lock);
 }
@@ -82,13 +87,17 @@ kfree(char *v)
 char*
 kalloc(void)
 {
-  struct run *r;
+  char *r = 0;
 
   if(kmem.use_lock)
     acquire(&kmem.lock);
-  r = kmem.freelist;
-  if(r)
-    kmem.freelist = r->next;
+  for (int i = 0; i < PGMAX; i++) {
+    if (kmem.list[i].flag) {
+      kmem.list[i].flag = FALSE;
+      r = kmem.list[i].arr;
+      break;
+    }
+  }
   if(kmem.use_lock)
     release(&kmem.lock);
   return (char*)r;
