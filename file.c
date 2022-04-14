@@ -9,17 +9,30 @@
 #include "spinlock.h"
 #include "sleeplock.h"
 #include "file.h"
+#include "mmu.h"
+
+#define NMAX 1024
 
 struct devsw devsw[NDEV];
+
+struct slab{
+  uint count;
+  struct file files[NMAX];
+  struct slab *next;
+};
+
 struct {
   struct spinlock lock;
   struct file file[NFILE];
+  struct slab *slab;
 } ftable;
 
 void
 fileinit(void)
 {
   initlock(&ftable.lock, "ftable");
+  ftable.slab = (struct slab *) kalloc();
+  memset(ftable.slab, 0, PGSIZE);
 }
 
 // Allocate a file structure.
@@ -27,6 +40,7 @@ struct file*
 filealloc(void)
 {
   struct file *f;
+  struct slab *s;
 
   acquire(&ftable.lock);
   for(f = ftable.file; f < ftable.file + NFILE; f++){
@@ -34,6 +48,34 @@ filealloc(void)
       f->ref = 1;
       release(&ftable.lock);
       return f;
+    }
+    s = ftable.slab;
+    while(s->count >= NMAX)
+    {
+      s = s->next;
+    }
+    if(s->count >= NMAX)
+    {
+      struct slab* t;
+      if((t = (struct slab*)kalloc()) == 0)
+      {
+        release(&ftable.lock);
+        return 0;
+      }
+      memset(t, 0, PGSIZE);
+      s->next = t;
+      s = t;
+    }
+    for(int i = 0; i < NMAX; i++)
+    {
+      if(s->files[i].ref == 0)
+      {
+        f = &(s->files[i]);
+        s->count += 1;
+        f->ref = 1;
+        release(&ftable.lock);
+        return f;
+      }
     }
   }
   release(&ftable.lock);
@@ -66,6 +108,8 @@ fileclose(struct file *f)
     return;
   }
   ff = *f;
+  struct slab* s = (struct slab*)PGROUNDDOWN((uint)f);
+  s->count -= 1;
   f->ref = 0;
   f->type = FD_NONE;
   release(&ftable.lock);
